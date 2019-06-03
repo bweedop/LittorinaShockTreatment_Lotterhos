@@ -22,7 +22,7 @@ block <- sprintf("%02d", seq(1, 12))
 sample.n <- sprintf("%04d", seq(1, 1080))
 
 # pops <- two letter indicators for the two different populations
-pops <- c("MA", "NJ")
+pops <- c("MA", "RI")
 
 # locations <- 
 # locations <- c()
