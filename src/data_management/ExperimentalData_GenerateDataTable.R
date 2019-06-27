@@ -16,7 +16,7 @@ set.seed(90)
 treatments <- c("HS", "CS", "NT")
 
 # block <- two digit block indicator with leading zeros
-block <- sprintf("%02d", seq(1, 12))
+block <- sprintf("%02d", seq(1, 6))
 
 # sample.n <- four digit sample indicator with leading zeros
 sample.n <- sprintf("%04d", seq(1, 1080))
@@ -24,8 +24,9 @@ sample.n <- sprintf("%04d", seq(1, 1080))
 # pops <- two letter indicators for the two different populations
 pops <- c("MA", "RI")
 
-# locations <- 
-# locations <- c()
+# dates <- get dates that pretreatment respiration measurements will be taken
+dates <- seq(from = as.Date("2019/06/29"), to = as.Date("2019/08/01"), by  = 1)
+dates <- dates[!weekdays(dates) %in% c("Saturday", "Sunday")]
 
 # spp <- two letter indicators for the three different species
 spp <- c("LL", "LS", "LO")
@@ -46,34 +47,46 @@ label.permute <- sprintf('%s_%s_%s_%s', tmp[,1], tmp[,2], tmp[,3], tmp[,4])
 #                      treatments and blocks.
 sample.indicators <- paste(as.character(complete_ra(N = 1080, 
                                                     conditions = unique(label.permute))), 
-                           sample.n, sep = "_")
+                            sample.n, sep = "_")
 
 
 ######################################
 # Generate data frame for data entry #
 ######################################
 
-data <- data.frame("block" = unlist(lapply(strsplit(sample.indicators, split="_"), "[", 4) ),
-                   "sample_n" = sample.n,
-                   "sample_indicator" = sample.indicators,
-                   "genus_species" = genus_species[match(unlist(lapply(strsplit(sample.indicators, split="_"), "[", 3) ), spp)],
-                   "population" = unlist(lapply(strsplit(sample.indicators, split="_"), "[", 2) ),
-                   "collection_location" = NA,
-                   "treatment" = unlist(lapply(strsplit(sample.indicators, split="_"), "[", 1) ),
-                   "shell_height" = NA,
-                   "shell_width" = NA,
-                   "wet_weight" = NA,
-                   "buoyant_weight" = NA,
-                   "respiration_measured" = FALSE,
-                   "respiration" = NA,
-                   "treatmentDay1_survived" = TRUE,
-                   "treatmentDay2_survived" = TRUE,
-                   "treatmentDay3_survived" = TRUE,
-                   "tissue_collected" = FALSE,
+data <- data.frame("Block" = unlist(lapply(strsplit(sample.indicators, split="_"), "[", 4) ),
+                   "Sample_N" = sample.n,
+                   "Sample_Indicator" = sample.indicators,
+                   "Genus_Species" = genus_species[match(unlist(lapply(strsplit(sample.indicators, split = "_"), "[", 3) ), spp)],
+                   "Population" = unlist(lapply(strsplit(sample.indicators, split="_"), "[", 2) ),
+                   "Collection_Location" = NA,
+                   "Treatment" = unlist(lapply(strsplit(sample.indicators, split="_"), "[", 1) ),
+                   "ShellHeight" = NA,
+                   "ShellWidth" = NA,
+                   "WetWeight" = NA,
+                   "BuoyantWeight" = NA,
+                   "PreTreatment_Respiration_MeasureDate" = NA,
+                   "PreTreatment_Respiration" = NA,
+                   "PostTreatment_Respiration_Measured" = FALSE,
+                   "PostTreatment_Respiration" = NA,
+                   "TreatmentDay1_Survived" = TRUE,
+                   "TreatmentDay2_Survived" = TRUE,
+                   "TreatmentDay3_Survived" = TRUE,
+                   "Tissue_Collected" = FALSE,
+                   "EggsProduced" = FALSE,
                    stringsAsFactors = FALSE)
+
+data <- data[order(data$Block), ]
+data$PreTreatment_Respiration_MeasureDate <- rep(dates, each = 45)
+
+                   ## ADD seatable ID
+                   # Eggs Produced T/F flag
 
 ###################
 # Save data frame #
 ###################
 
-write.table(data, "data/experimental/LittorinaSppTreatmentData.txt")                   
+write.table(data, 
+            "data/experimental/LittorinaSppTreatmentData.csv", 
+            sep = ",", 
+            row.names = FALSE)
