@@ -47,14 +47,15 @@ label.permute <- sprintf('%s_%s_%s_%s', tmp[,1], tmp[,2], tmp[,3], tmp[,4])
 #                      treatments and blocks.
 sample.indicators <- paste(as.character(complete_ra(N = 1080, 
                                                     conditions = unique(label.permute))), 
-                            sample.n, sep = "_")
-
+                           sample.n, 
+                           sep = "_")
 
 ######################################
 # Generate data frame for data entry #
 ######################################
 
 data <- data.frame("Block" = unlist(lapply(strsplit(sample.indicators, split="_"), "[", 4) ),
+                   "Seatable_ID" = NA,
                    "Sample_N" = sample.n,
                    "Sample_Indicator" = sample.indicators,
                    "Genus_Species" = genus_species[match(unlist(lapply(strsplit(sample.indicators, split = "_"), "[", 3) ), spp)],
@@ -64,7 +65,6 @@ data <- data.frame("Block" = unlist(lapply(strsplit(sample.indicators, split="_"
                    "ShellHeight" = NA,
                    "ShellWidth" = NA,
                    "WetWeight" = NA,
-                   "BuoyantWeight" = NA,
                    "PreTreatment_Respiration_MeasureDate" = NA,
                    "PreTreatment_Respiration" = NA,
                    "PostTreatment_Respiration_Measured" = FALSE,
@@ -79,8 +79,19 @@ data <- data.frame("Block" = unlist(lapply(strsplit(sample.indicators, split="_"
 data <- data[order(data$Block), ]
 data$PreTreatment_Respiration_MeasureDate <- rep(dates, each = 45)
 
-                   ## ADD seatable ID
-                   # Eggs Produced T/F flag
+# bloxks - full list of blocks that will be used to randomize the seatable assignment
+blocks <- data$Block
+# block_m_each <- parameter settings for randomization. 
+#   6 rows for 6 blocks and 60 in each of the three seatables.
+block_m_each <- rbind(c(60, 60, 60),
+                      c(60, 60, 60),
+                      c(60, 60, 60),
+                      c(60, 60, 60),
+                      c(60, 60, 60),
+                      c(60, 60, 60))
+# Z - Temporary variable that will be used to store the seatable ID
+Z <- block_ra(blocks = blocks, block_m_each = block_m_each)
+data$Seatable_ID <- Z
 
 ###################
 # Save data frame #
